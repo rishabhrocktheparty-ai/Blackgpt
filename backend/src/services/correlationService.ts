@@ -170,7 +170,7 @@ export const performCorrelation = async (
         resultGist,
         correlationConfidence: avgConfidence,
         sourcesQueried,
-        rawResults: sources
+        rawResults: sources as any // Cast to any for JSON storage
       }
     });
 
