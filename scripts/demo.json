@@ -1,0 +1,8 @@
+{
+  "scriptName": "Custom-Trading-Signal",
+  "dateFrom": "2024-01-15T00:00:00Z",
+  "dateTo": "2024-01-16T00:00:00Z",
+  "gistText": "Custom market signal detected through public data analysis. NewsAPI shows increased mention of regulatory changes. Reddit sentiment indicates community concern about exchange security. CoinGecko data reflects minor price volatility.",
+  "provenanceTags": ["news:licensed", "reddit:public", "coingecko:api"],
+  "createdBy": "demo-script"
+}
