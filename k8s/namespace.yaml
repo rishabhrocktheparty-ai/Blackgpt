@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: blackgpt
+  labels:
+    app: blackgpt
+    environment: production
