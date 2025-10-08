@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: blackgpt-frontend
+  namespace: blackgpt
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: blackgpt-frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blackgpt-frontend
+  namespace: blackgpt
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: blackgpt-frontend
+  template:
+    metadata:
+      labels:
+        app: blackgpt-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/rishabhrocktheparty-ai/blackgpt-frontend:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"

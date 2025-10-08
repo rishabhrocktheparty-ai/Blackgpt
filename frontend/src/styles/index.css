@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-black-primary text-text-primary antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-black-card border border-border-subtle rounded-lg p-6;
+    box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.03);
+  }
+
+  .btn-primary {
+    @apply bg-accent-teal text-black-primary font-semibold py-3 px-6 rounded-lg;
+    @apply hover:bg-opacity-90 active:scale-95 transition-all duration-150;
+    @apply focus:outline-none focus:ring-2 focus:ring-accent-teal focus:ring-offset-2 focus:ring-offset-black-primary;
+  }
+
+  .btn-secondary {
+    @apply bg-black-card border border-accent-teal text-accent-teal font-semibold py-3 px-6 rounded-lg;
+    @apply hover:bg-accent-teal hover:bg-opacity-10 active:scale-95 transition-all duration-150;
+  }
+
+  .input-field {
+    @apply bg-black-card border border-border-subtle text-text-primary rounded-lg px-4 py-3;
+    @apply focus:outline-none focus:ring-2 focus:ring-accent-teal focus:border-transparent;
+    @apply placeholder:text-text-secondary;
+  }
+
+  .badge {
+    @apply inline-block px-3 py-1 text-xs font-semibold rounded-full;
+  }
+
+  .badge-unverified {
+    @apply bg-gray-600 text-white;
+  }
+
+  .badge-verified {
+    @apply bg-green-600 text-white;
+  }
+
+  .badge-correlated {
+    @apply bg-blue-600 text-white;
+  }
+
+  .badge-review {
+    @apply bg-amber-600 text-white;
+  }
+
+  .badge-rejected {
+    @apply bg-red-600 text-white;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}

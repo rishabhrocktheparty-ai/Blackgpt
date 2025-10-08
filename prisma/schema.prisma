@@ -1,0 +1,142 @@
+// This is your Prisma schema file
+// WARNING: Only connect to legal, auditable data sources
+// NEVER integrate Tor, .onion, or illicit marketplace connectors
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SignalStatus {
+  UNVERIFIED
+  HUMAN_VERIFIED
+  CORRELATED
+  REQUIRES_REVIEW
+  REJECTED
+}
+
+enum UserRole {
+  UPLOADER
+  REVIEWER
+  ADMIN
+}
+
+enum SourceType {
+  MANUAL_UPLOAD
+  REDDIT
+  TWITTER
+  NEWS_API
+  BLOCKCHAIN
+  LICENSED_FEED
+  EXCHANGE_OTC
+}
+
+enum AuditAction {
+  CREATED
+  VERIFIED
+  REJECTED
+  CORRELATED
+  FLAGGED
+  UPDATED
+  DELETED
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  passwordHash    String
+  roles           UserRole[]
+  apiKeys         String[]  @default([])
+  lastVerifiedAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  signalsCreated  Signal[]  @relation("SignalCreator")
+  audits          Audit[]
+  
+  @@index([email])
+}
+
+model Signal {
+  id                Int           @id @default(autoincrement())
+  scriptName        String
+  dateFrom          DateTime
+  dateTo            DateTime
+  gistText          String        @db.Text
+  provenanceTags    String[]
+  sourceType        SourceType
+  confidenceScore   Float         @default(0.0)
+  status            SignalStatus  @default(UNVERIFIED)
+  requiresAttention Boolean       @default(false)
+  contradictionFlag Boolean       @default(false)
+  contradictionNote String?       @db.Text
+  
+  createdBy         Int
+  creator           User          @relation("SignalCreator", fields: [createdBy], references: [id])
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  audits            Audit[]
+  correlationJobs   CorrelationJob[]
+  
+  @@index([status])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@index([confidenceScore])
+}
+
+model Audit {
+  id          Int          @id @default(autoincrement())
+  signalId    Int
+  signal      Signal       @relation(fields: [signalId], references: [id], onDelete: Cascade)
+  
+  actorId     Int
+  actor       User         @relation(fields: [actorId], references: [id])
+  
+  action      AuditAction
+  notes       String?      @db.Text
+  metadata    Json?
+  
+  timestamp   DateTime     @default(now())
+  
+  @@index([signalId])
+  @@index([actorId])
+  @@index([timestamp])
+}
+
+model CorrelationJob {
+  id                    Int       @id @default(autoincrement())
+  jobId                 String    @unique @default(uuid())
+  signalId              Int
+  signal                Signal    @relation(fields: [signalId], references: [id], onDelete: Cascade)
+  
+  startedAt             DateTime  @default(now())
+  finishedAt            DateTime?
+  status                String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, FAILED
+  
+  resultGist            String?   @db.Text
+  correlationConfidence Float?
+  sourcesQueried        String[]  @default([])
+  rawResults            Json?
+  
+  errorMessage          String?   @db.Text
+  
+  @@index([signalId])
+  @@index([status])
+  @@index([startedAt])
+}
+
+model Setting {
+  id            Int      @id @default(autoincrement())
+  key           String   @unique
+  value         String   @db.Text
+  description   String?
+  updatedAt     DateTime @updatedAt
+  
+  @@index([key])
+}

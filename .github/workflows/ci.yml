@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: blackgpt_test
+          POSTGRES_USER: blackgpt
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 3s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm install
+          cd backend && npm install
+          cd ../frontend && npm install
+      
+      - name: Generate Prisma Client
+        run: cd prisma && npx prisma generate
+      
+      - name: Run Prisma Migrations
+        run: cd prisma && npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://blackgpt:password@localhost:5432/blackgpt_test?schema=public
+      
+      - name: Lint Backend
+        run: cd backend && npm run lint
+      
+      - name: Lint Frontend
+        run: cd frontend && npm run lint
+      
+      - name: Test Backend
+        run: cd backend && npm test
+        env:
+          DATABASE_URL: postgresql://blackgpt:password@localhost:5432/blackgpt_test?schema=public
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-secret
+          DEMO_MODE: "true"
+      
+      - name: Build Backend
+        run: cd backend && npm run build
+      
+      - name: Build Frontend
+        run: cd frontend && npm run build
+      
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          files: ./backend/coverage/lcov.info
+          flags: backend
+          name: backend-coverage
+
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Run npm audit
+        run: |
+          cd backend && npm audit --production || true
+          cd ../frontend && npm audit --production || true
+      
+      - name: Run Snyk Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --all-projects --severity-threshold=high

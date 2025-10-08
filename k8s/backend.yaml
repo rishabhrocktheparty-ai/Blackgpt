@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: blackgpt-backend
+  namespace: blackgpt
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: blackgpt-backend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blackgpt-backend
+  namespace: blackgpt
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: blackgpt-backend
+  template:
+    metadata:
+      labels:
+        app: blackgpt-backend
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/rishabhrocktheparty-ai/blackgpt-backend:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "3000"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: blackgpt-secrets
+                  key: database-url
+            - name: REDIS_URL
+              value: redis://redis:6379
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: blackgpt-secrets
+                  key: jwt-secret
+            - name: ENABLE_PROVENANCE_VALIDATION
+              value: "true"
+            - name: LOG_LEVEL
+              value: info
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

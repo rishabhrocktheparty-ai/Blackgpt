@@ -1,0 +1,29 @@
+DEMO SIGNAL: Market Analysis Report
+
+Date Range: Past 7 days
+Focus: Cryptocurrency Trading Patterns
+
+Key Observations:
+1. Bitcoin trading volume increased 35% week-over-week
+2. Social media sentiment analysis shows 72% positive mentions
+3. Major institutional investors announced new crypto positions
+4. Technical indicators: RSI at 68, MACD showing bullish crossover
+5. On-chain metrics: Active addresses up 22%
+
+Public News Sources:
+- Bloomberg: "Institutional Crypto Investment Reaches New High"
+- Reuters: "Digital Asset Trading Volume Surges"
+- CoinDesk: "Bitcoin Network Activity Shows Strong Growth"
+
+Trading Implications:
+Market sentiment appears bullish with strong fundamental support. Multiple technical and on-chain indicators align with positive outlook. Recommended action: Monitor for continuation patterns.
+
+Risk Factors:
+- Regulatory uncertainty in major markets
+- Macroeconomic headwinds
+- Historical resistance levels
+
+Confidence Level: 75% (based on multi-source correlation)
+
+Sources: Public news APIs, blockchain explorers, social media sentiment analysis
+Provenance: All data sourced from legal, publicly available APIs
